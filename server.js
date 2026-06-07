@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 8080;
 
 app.use(cors());
 app.use(express.json());
@@ -145,7 +145,7 @@ app.post('/api/search', async (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ السيرفر شغّال على http://localhost:${PORT}`);
   console.log(`   حراج + سعودي سيل جاهزين`);
 });

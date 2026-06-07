@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سيارات — حراج + سعودي سيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f2f3f5; --surface: #fff; --surface2: #f0f2f5;
+  --border: rgba(0,0,0,.09); --border2: rgba(0,0,0,.16);
+  --text: #1a1a1a; --text2: #555; --text3: #999;
+  --blue: #185FA5; --blue-bg: #E6F1FB; --blue-mid: #378ADD;
+  --green-bg: #EAF3DE; --green: #3B6D11;
+  --amber-bg: #FAEEDA; --amber: #854F0B;
+  --red-bg: #FCEBEB; --red: #791F1F;
+  --r: 10px; --rl: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:#18191b; --surface:#242528; --surface2:#2e3033;
+    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.15);
+    --text:#f0f0f0; --text2:#aaa; --text3:#666;
+    --blue:#5ba3e0; --blue-bg:#0e2a45; --blue-mid:#4d8fc4;
+    --green-bg:#1a2e0e; --green:#8dcf52;
+    --amber-bg:#2e1e05; --amber:#e8a84a;
+    --red-bg:#2e0d0d; --red:#f09595;
+  }
+}
+body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.wrap { max-width:860px; margin:0 auto; padding:1.75rem 1rem 4rem; }
+
+/* header */
+.hdr { text-align:center; margin-bottom:1.75rem; }
+.hdr h1 { font-size:24px; font-weight:700; }
+.hdr p  { font-size:13px; color:var(--text3); margin-top:3px; }
+
+/* sources row */
+.sources { display:flex; justify-content:center; gap:10px; margin-bottom:1.5rem; flex-wrap:wrap; }
+.src-pill { display:flex; align-items:center; gap:6px; padding:6px 14px; border:0.5px solid var(--border2); border-radius:20px; font-size:13px; font-weight:500; color:var(--text2); background:var(--surface); cursor:pointer; transition:.12s; }
+.src-pill input { width:16px; height:16px; accent-color:var(--blue); cursor:pointer; }
+.src-pill.active { background:var(--blue-bg); border-color:var(--blue-mid); color:var(--blue); }
+
+/* search card */
+.search-card { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--rl); padding:1.25rem; margin-bottom:1rem; }
+.search-row  { display:flex; gap:8px; }
+.search-row input { flex:1; padding:11px 16px; font-family:'Cairo',sans-serif; font-size:15px; border:0.5px solid var(--border2); border-radius:var(--r); background:var(--surface2); color:var(--text); outline:none; transition:.15s; }
+.search-row input:focus { border-color:var(--blue-mid); }
+.search-row button { padding:11px 26px; background:var(--blue); color:#fff; border:none; border-radius:var(--r); font-family:'Cairo',sans-serif; font-size:15px; font-weight:600; cursor:pointer; white-space:nowrap; transition:opacity .15s; }
+.search-row button:hover { opacity:.88; }
+.search-row button:disabled { opacity:.45; cursor:not-allowed; }
+.quick-label { font-size:12px; color:var(--text3); margin:12px 0 7px; }
+.qf-row { display:flex; flex-wrap:wrap; gap:6px; }
+.qf { padding:5px 14px; border:0.5px solid var(--border2); border-radius:20px; background:transparent; color:var(--text2); font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; transition:.12s; }
+.qf:hover { background:var(--blue-bg); border-color:var(--blue-mid); color:var(--blue); }
+
+/* stats bar */
+.stats { display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; }
+.stat-chip { padding:5px 14px; border-radius:20px; font-size:13px; font-weight:500; }
+.stat-total { background:var(--blue-bg); color:var(--blue); }
+.stat-haraj { background:var(--green-bg); color:var(--green); }
+.stat-saudi { background:var(--amber-bg); color:var(--amber); }
+
+/* filter tabs */
+.filter-row { display:flex; gap:8px; margin-bottom:1.25rem; }
+.ftab { padding:6px 18px; border:0.5px solid var(--border2); border-radius:20px; background:transparent; color:var(--text2); font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; transition:.12s; }
+.ftab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+
+/* error */
+.err { background:var(--red-bg); border:0.5px solid #f09595; color:var(--red); padding:11px 15px; border-radius:var(--r); font-size:13px; margin-bottom:1rem; }
+
+/* cars list */
+.cars { display:flex; flex-direction:column; gap:10px; }
+.car { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--rl); display:flex; gap:0; overflow:hidden; transition:border-color .15s; }
+.car:hover { border-color:var(--border2); }
+.car-img { width:160px; min-height:130px; flex-shrink:0; background:var(--surface2); overflow:hidden; }
+.car-img img { width:100%; height:100%; object-fit:cover; display:block; }
+.car-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--border2); }
+.car-body { flex:1; padding:1rem 1.25rem; display:flex; flex-direction:column; gap:6px; min-width:0; }
+.car-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.car-title { font-size:15px; font-weight:600; line-height:1.4; }
+.car-price { font-size:16px; font-weight:700; color:var(--blue); white-space:nowrap; }
+.car-meta { display:flex; gap:6px; flex-wrap:wrap; }
+.badge { font-size:12px; padding:3px 10px; border-radius:20px; }
+.b-haraj  { background:var(--green-bg); color:var(--green); }
+.b-saudi  { background:var(--amber-bg); color:var(--amber); }
+.b-city   { background:var(--blue-bg);  color:var(--blue); }
+.b-km     { background:var(--surface2); color:var(--text2); }
+.b-time   { background:var(--surface2); color:var(--text3); }
+.car-link { font-size:13px; color:var(--blue); text-decoration:none; font-weight:500; margin-top:auto; }
+.car-link:hover { text-decoration:underline; }
+
+/* loading */
+.loading { display:flex; justify-content:center; gap:7px; padding:3.5rem; }
+.loading span { width:9px; height:9px; border-radius:50%; background:var(--blue-mid); animation:pulse .8s infinite; }
+.loading span:nth-child(2){animation-delay:.15s} .loading span:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+.empty { text-align:center; padding:3.5rem; color:var(--text3); font-size:15px; }
+
+/* responsive */
+@media(max-width:560px){
+  .car { flex-direction:column; }
+  .car-img { width:100%; height:180px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <h1>🚗 بحث السيارات</h1>
+    <p>حراج + سعودي سيل في مكان واحد</p>
+  </div>
+
+  <div class="sources">
+    <label class="src-pill active" id="pill-haraj">
+      <input type="checkbox" id="chk-haraj" checked onchange="togglePill('haraj')">
+      🟢 حراج
+    </label>
+    <label class="src-pill active" id="pill-saudi">
+      <input type="checkbox" id="chk-saudi" checked onchange="togglePill('saudi')">
+      🟡 سعودي سيل
+    </label>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <input type="text" id="q" placeholder="مثال: لكزس 2023، كامري، جيب رنجلر..." />
+      <button id="btn" onclick="doSearch()">بحث</button>
+    </div>
+    <div class="quick-label">بحث سريع</div>
+    <div class="qf-row">
+      <button class="qf" onclick="qs('تويوتا')">تويوتا</button>
+      <button class="qf" onclick="qs('لكزس')">لكزس</button>
+      <button class="qf" onclick="qs('نيسان')">نيسان</button>
+      <button class="qf" onclick="qs('مرسيدس')">مرسيدس</button>
+      <button class="qf" onclick="qs('شيفروليه كابريس')">كابريس</button>
+      <button class="qf" onclick="qs('GMC يوكن')">يوكن</button>
+      <button class="qf" onclick="qs('تاهو')">تاهو</button>
+      <button class="qf" onclick="qs('كامري')">كامري</button>
+      <button class="qf" onclick="qs('باترول')">باترول</button>
+      <button class="qf" onclick="qs('بي ام دبليو')">BMW</button>
+    </div>
+  </div>
+
+  <div id="statsBar" style="display:none" class="stats"></div>
+  <div id="filterRow" style="display:none" class="filter-row">
+    <button class="ftab active" onclick="setFilter('all',this)">الكل</button>
+    <button class="ftab" onclick="setFilter('haraj',this)">حراج فقط</button>
+    <button class="ftab" onclick="setFilter('saudisale',this)">سعودي سيل فقط</button>
+  </div>
+  <div id="errBar" style="display:none" class="err"></div>
+  <div id="results"></div>
+
+</div>
+<script>
+let allResults = [];
+let activeFilter = 'all';
+
+document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+function togglePill(id) {
+  const pill = document.getElementById('pill-'+id);
+  const chk  = document.getElementById('chk-'+id);
+  pill.classList.toggle('active', chk.checked);
+}
+
+function qs(q) { document.getElementById('q').value = q; doSearch(); }
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderVisible();
+}
+
+async function doSearch() {
+  const query = document.getElementById('q').value.trim();
+  if (!query) return;
+
+  const harajOn = document.getElementById('chk-haraj').checked;
+  const saudiOn = document.getElementById('chk-saudi').checked;
+  if (!harajOn && !saudiOn) { alert('اختر مصدر واحد على الأقل'); return; }
+
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.textContent = 'جاري البحث...';
+  document.getElementById('errBar').style.display = 'none';
+  document.getElementById('statsBar').style.display = 'none';
+  document.getElementById('filterRow').style.display = 'none';
+  document.getElementById('results').innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
+
+  try {
+    const res = await fetch('/api/search', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query, haraj: harajOn, saudisale: saudiOn })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    allResults = data.results || [];
+    activeFilter = 'all';
+    document.querySelectorAll('.ftab').forEach((b,i)=>b.classList.toggle('active',i===0));
+
+    // stats
+    const sb = document.getElementById('statsBar');
+    sb.innerHTML = `
+      <span class="stat-chip stat-total">الكل: ${data.total}</span>
+      ${harajOn ? `<span class="stat-chip stat-haraj">حراج: ${data.harajCount}</span>` : ''}
+      ${saudiOn ? `<span class="stat-chip stat-saudi">سعودي سيل: ${data.saudiSaleCount}</span>` : ''}
+    `;
+    sb.style.display = 'flex';
+    document.getElementById('filterRow').style.display = data.harajCount > 0 && data.saudiSaleCount > 0 ? 'flex' : 'none';
+
+    if (data.errors && data.errors.length) {
+      const eb = document.getElementById('errBar');
+      eb.textContent = '⚠️ ' + data.errors.join(' | ');
+      eb.style.display = 'block';
+    }
+
+    renderVisible();
+  } catch(err) {
+    document.getElementById('errBar').textContent = '⚠️ ' + err.message;
+    document.getElementById('errBar').style.display = 'block';
+    document.getElementById('results').innerHTML = '';
+  } finally {
+    btn.disabled = false; btn.textContent = 'بحث';
+  }
+}
+
+function renderVisible() {
+  const filtered = activeFilter === 'all' ? allResults : allResults.filter(c => c.source === activeFilter);
+  const div = document.getElementById('results');
+
+  if (!filtered.length) {
+    div.innerHTML = '<div class="empty">🔍 ما لقيت نتائج، جرب كلمة بحث ثانية</div>';
+    return;
+  }
+
+  div.innerHTML = '<div class="cars">' + filtered.map(c => `
+    <div class="car">
+      <div class="car-img">
+        ${c.img ? `<img src="${esc(c.img)}" alt="${esc(c.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>🚗</div>'">` : '<div class="no-img">🚗</div>'}
+      </div>
+      <div class="car-body">
+        <div class="car-top">
+          <div class="car-title">${esc(c.title)}</div>
+          <div class="car-price">${esc(c.price)}</div>
+        </div>
+        <div class="car-meta">
+          <span class="badge ${c.source==='haraj'?'b-haraj':'b-saudi'}">${esc(c.sourceName)}</span>
+          ${c.city ? `<span class="badge b-city">📍 ${esc(c.city)}</span>` : ''}
+          ${c.km   ? `<span class="badge b-km">🛣 ${esc(c.km)}</span>` : ''}
+          ${c.time ? `<span class="badge b-time">🕐 ${esc(c.time)}</span>` : ''}
+        </div>
+        ${c.url ? `<a class="car-link" href="${esc(c.url)}" target="_blank">عرض الإعلان ←</a>` : ''}
+      </div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>

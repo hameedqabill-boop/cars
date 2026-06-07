@@ -48,7 +48,6 @@ async function scrapeHaraj(query, page = 1) {
     });
   });
 
-  // fallback: generic card selector
   if (results.length === 0) {
     $('a[href*="/post/"], a[href*="/listing/"]').each((_, el) => {
       const $el = $(el);
@@ -82,7 +81,6 @@ async function scrapeSaudiSale(query, page = 1) {
   $('a[href*="/listings/"]').each((_, el) => {
     const $el = $(el);
     const href = $el.attr('href');
-    // skip non-listing links like /listings?...
     if (!href || !href.match(/\/listings\/[a-zA-Z0-9]+\//)) return;
 
     const title = $el.find('h2, h3, [class*="title"], [class*="name"]').first().text().trim()
@@ -123,12 +121,10 @@ app.post('/api/search', async (req, res) => {
   const haraj     = harajResults.status === 'fulfilled'     ? harajResults.value     : [];
   const saudisale = saudiSaleResults.status === 'fulfilled' ? saudiSaleResults.value : [];
 
-  // errors
   const errors = [];
   if (harajResults.status     === 'rejected') errors.push('حراج: ' + harajResults.reason?.message);
   if (saudiSaleResults.status === 'rejected') errors.push('سعودي سيل: ' + saudiSaleResults.reason?.message);
 
-  // merge & deduplicate by title
   const merged = [];
   const seen   = new Set();
   for (const item of [...haraj, ...saudisale]) {
@@ -146,6 +142,6 @@ app.post('/api/search', async (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ السيرفر شغّال على http://localhost:${PORT}`);
+  console.log(`✅ السيرفر شغّال وجاهز للاستقبال على المنفذ: ${PORT}`);
   console.log(`   حراج + سعودي سيل جاهزين`);
 });

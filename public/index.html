@@ -1,12 +1,270 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>اختبار v1.4</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محرك بحث السيارات المميز</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.12);
+  --text: #111827; --text2: #4b5563; --text3: #9ca3af;
+  --blue: #2563eb; --blue-bg: #dbeafe; --blue-mid: #3b82f6;
+  --green: #16a34a; --green-bg: #dcfce7;
+  --amber: #f59e0b; --amber-bg: #fef3c7;
+  --red: #dc2626; --red-bg: #fee2e2;
+  --r: 12px; --rl: 16px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --text: #f8fafc; --text2: #cbd5e1; --text3: #94a3b8;
+    --blue: #60a5fa; --blue-bg: #1e3a8a; --blue-mid: #3b82f6;
+    --green: #4ade80; --green-bg: #14532d;
+    --amber: #fbbf24; --amber-bg: #78350f;
+  }
+}
+body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height: 1.5; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 5rem; }
+
+.hdr { text-align: center; margin-bottom: 2.5rem; }
+.hdr h1 { font-size: 30px; font-weight: 800; }
+.version-badge { font-size: 14px; font-weight: 700; background: var(--blue-bg); color: var(--blue); padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-right: 8px; border: 1px solid var(--blue-mid); }
+.hdr p  { font-size: 15px; color: var(--text3); margin-top: 8px; font-weight: 500; }
+
+.sources { display:flex; justify-content:center; gap:12px; margin-bottom:1.5rem; flex-wrap:wrap; }
+.src-pill { display:flex; align-items:center; gap:8px; padding:8px 18px; border: 1.5px solid var(--border2); border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text2); background: var(--surface); cursor: pointer; transition: 0.2s; user-select: none; }
+.src-pill input { display: none; }
+.src-pill:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
+.src-pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
+
+.search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+.search-row  { display:flex; gap:12px; }
+.search-row input { flex:1; padding:14px 20px; font-family:'Cairo',sans-serif; font-size:16px; border: 1.5px solid var(--border2); border-radius: var(--r); background: var(--surface2); color: var(--text); outline:none; }
+.search-row input:focus { border-color: var(--blue-mid); }
+.search-row button { padding: 0 32px; background: var(--blue); color: #fff; border:none; border-radius: var(--r); font-family:'Cairo',sans-serif; font-size:16px; font-weight: 700; cursor: pointer; transition: 0.15s; }
+.search-row button:hover { opacity: 0.9; transform: scale(1.02); }
+.search-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.quick-label { font-size:13px; color:var(--text3); margin:16px 0 10px; font-weight: 600; }
+.qf-row { display:flex; flex-wrap:wrap; gap:8px; }
+.qf { padding:6px 16px; border: 1px solid var(--border2); border-radius: 20px; background: var(--surface); color: var(--text2); font-family: 'Cairo',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.qf:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+.stats { display:flex; gap:10px; margin-bottom: 1rem; flex-wrap:wrap; align-items: center; justify-content: center; }
+.stat-chip { padding:6px 16px; border-radius: 20px; font-size:13px; font-weight:700; box-shadow: var(--shadow); }
+.stat-total { background: var(--blue-bg); color: var(--blue); }
+.stat-haraj { background: var(--green-bg); color: var(--green); }
+.stat-opensooq { background: var(--amber-bg); color: var(--amber); }
+.stat-yallamotor { background: var(--blue-bg); color: var(--blue); }
+
+.err { background: var(--red-bg); border: 1px solid var(--red); color: var(--red); padding: 12px 16px; border-radius: var(--r); font-size: 14px; font-weight: 600; margin-bottom: 1.5rem; text-align: center; }
+
+.cars { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.car { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); display: flex; flex-direction: column; overflow: hidden; transition: 0.3s; box-shadow: var(--shadow); animation: fadeInUp 0.5s forwards; }
+.car:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: var(--border2); }
+.car-img { width: 100%; height: 220px; background: var(--surface2); overflow: hidden; }
+.car-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+.car:hover .car-img img { transform: scale(1.05); }
+.car-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:48px; opacity: 0.5; }
+
+.car-body { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+.car-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.car-price { font-size: 18px; font-weight: 800; color: var(--blue); margin-bottom: 12px; }
+
+.car-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+.b-haraj  { background: var(--green-bg); color: var(--green); }
+.b-opensooq { background: var(--amber-bg); color: var(--amber); }
+.b-yallamotor { background: var(--blue-bg); color: var(--blue); }
+.b-city   { background: var(--surface2); color: var(--text2); }
+.b-km     { background: var(--surface2); color: var(--text2); }
+
+.car-link { font-size: 14px; color: #fff; background: var(--blue); text-decoration: none; font-weight: 600; text-align: center; padding: 10px; border-radius: var(--r); margin-top: auto; transition: 0.2s; }
+.car-link:hover { background: var(--blue-mid); }
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.loading { display:flex; justify-content:center; gap:8px; padding:4rem; }
+.loading span { width:12px; height:12px; border-radius:50%; background: var(--blue); animation: bounce 0.6s infinite alternate; }
+.loading span:nth-child(2) { animation-delay: 0.2s; }
+.loading span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { to { transform: translateY(-10px); opacity: 0.5; } }
+.empty { text-align:center; padding:4rem; color:var(--text3); font-size:18px; font-weight: 600; }
+
+@media(max-width: 600px){ .search-row { flex-direction: column; } .search-row button { padding: 14px; } .car-img { height: 200px; } }
+</style>
 </head>
-<body style="font-family: sans-serif; text-align: center; padding: 50px;">
-    <h1 style="color: blue;">v1.4 - إذا ظهر هذا الكلام فالصفحة تعمل</h1>
-    <input type="text" id="test" placeholder="جرب الكتابة هنا">
-    <button onclick="alert('يعمل بنجاح!')">اختبار</button>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <h1>🚀 بحث السيارات الذكي <span class="version-badge">v1.3</span></h1>
+    <p>ابحث في حراج، السوق المفتوح، ويلا موتور في نفس اللحظة</p>
+  </div>
+
+  <div class="sources">
+    <label class="src-pill active" id="pill-haraj">
+      <input type="checkbox" id="chk-haraj" checked onchange="togglePill('haraj')">
+      🟢 حراج
+    </label>
+    <label class="src-pill active" id="pill-opensooq">
+      <input type="checkbox" id="chk-opensooq" checked onchange="togglePill('opensooq')">
+      🟡 السوق المفتوح
+    </label>
+    <label class="src-pill active" id="pill-yallamotor">
+      <input type="checkbox" id="chk-yallamotor" checked onchange="togglePill('yallamotor')">
+      🔵 يلا موتور
+    </label>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <input type="text" id="q" placeholder="ابحث عن سيارتك (مثال: تاهو 2023، لكزس، كامري...)" autocomplete="off" />
+      <button id="btn" onclick="doSearch()">ابحث الآن</button>
+    </div>
+    <div class="quick-label">⚡ بحث سريع</div>
+    <div class="qf-row">
+      <button class="qf" onclick="qs('تويوتا')">تويوتا</button>
+      <button class="qf" onclick="qs('لكزس')">لكزس</button>
+      <button class="qf" onclick="qs('مرسيدس')">مرسيدس</button>
+      <button class="qf" onclick="qs('جيب رنجلر')">جيب رنجلر</button>
+      <button class="qf" onclick="qs('كابريس')">كابريس</button>
+      <button class="qf" onclick="qs('يوكن')">يوكن</button>
+      <button class="qf" onclick="qs('باترول')">باترول</button>
+    </div>
+  </div>
+
+  <div id="statsBar" style="display:none" class="stats"></div>
+  <div id="errBar" style="display:none" class="err"></div>
+  <div id="results"></div>
+
+</div>
+
+<script>
+let allResults = [];
+document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
+
+function togglePill(id) {
+  const pill = document.getElementById('pill-'+id);
+  const chk  = document.getElementById('chk-'+id);
+  pill.classList.toggle('active', chk.checked);
+  if(allResults.length > 0) renderVisible();
+}
+
+function qs(q) { document.getElementById('q').value = q; doSearch(); }
+
+async function doSearch() {
+  const query = document.getElementById('q').value.trim();
+  if (!query) return;
+
+  const harajOn = document.getElementById('chk-haraj').checked;
+  const opensooqOn = document.getElementById('chk-opensooq').checked;
+  const yallamotorOn = document.getElementById('chk-yallamotor').checked;
+  
+  if (!harajOn && !opensooqOn && !yallamotorOn) { alert('يرجى اختيار موقع واحد على الأقل 🚗'); return; }
+
+  const btn = document.getElementById('btn');
+  btn.disabled = true; btn.textContent = 'جاري المسح...';
+  document.getElementById('errBar').style.display = 'none';
+  document.getElementById('statsBar').style.display = 'none';
+  document.getElementById('results').innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
+
+  let sourceParam = undefined;
+  let checkedCount = [harajOn, opensooqOn, yallamotorOn].filter(Boolean).length;
+  if (checkedCount === 1) {
+    if (harajOn) sourceParam = 'haraj';
+    if (opensooqOn) sourceParam = 'opensooq';
+    if (yallamotorOn) sourceParam = 'yallamotor';
+  }
+
+  try {
+    const res = await fetch('/api/search', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ query, source: sourceParam })
+    });
+    
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    allResults = data.results || [];
+
+    const sb = document.getElementById('statsBar');
+    sb.innerHTML = `
+      <span class="stat-chip stat-total">الكل: ${data.total}</span>
+      ${data.harajCount > 0 ? `<span class="stat-chip stat-haraj">حراج: ${data.harajCount}</span>` : ''}
+      ${data.opensooqCount > 0 ? `<span class="stat-chip stat-opensooq">السوق المفتوح: ${data.opensooqCount}</span>` : ''}
+      ${data.yallamotorCount > 0 ? `<span class="stat-chip stat-yallamotor">يلا موتور: ${data.yallamotorCount}</span>` : ''}
+    `;
+    sb.style.display = data.total > 0 ? 'flex' : 'none';
+
+    if (data.errors && data.errors.length) {
+      const eb = document.getElementById('errBar');
+      eb.textContent = '⚠️ ' + data.errors.join(' | ');
+      eb.style.display = 'block';
+    }
+
+    renderVisible();
+  } catch(err) {
+    document.getElementById('errBar').textContent = '⚠️ حدث خطأ أثناء الاتصال: ' + err.message;
+    document.getElementById('errBar').style.display = 'block';
+    document.getElementById('results').innerHTML = '';
+  } finally {
+    btn.disabled = false; btn.textContent = 'ابحث الآن';
+  }
+}
+
+function renderVisible() {
+  const harajOn = document.getElementById('chk-haraj').checked;
+  const opensooqOn = document.getElementById('chk-opensooq').checked;
+  const yallamotorOn = document.getElementById('chk-yallamotor').checked;
+
+  const filtered = allResults.filter(c => {
+    if(c.source === 'haraj' && !harajOn) return false;
+    if(c.source === 'opensooq' && !opensooqOn) return false;
+    if(c.source === 'yallamotor' && !yallamotorOn) return false;
+    return true;
+  });
+
+  const div = document.getElementById('results');
+
+  if (!filtered.length) {
+    div.innerHTML = '<div class="empty">🔍 لم نجد أي سيارة مطابقة، جرب تغيير كلمة البحث.</div>';
+    return;
+  }
+
+  div.innerHTML = '<div class="cars">' + filtered.map((c, index) => {
+    let badgeClass = 'b-haraj';
+    if(c.source === 'opensooq') badgeClass = 'b-opensooq';
+    if(c.source === 'yallamotor') badgeClass = 'b-yallamotor';
+
+    return `
+    <div class="car" style="animation-delay: ${index * 0.05}s">
+      <div class="car-img">
+        ${c.img ? `<img src="${esc(c.img)}" alt="${esc(c.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>🚗</div>'">` : '<div class="no-img">🚗</div>'}
+      </div>
+      <div class="car-body">
+        <div class="car-title">${esc(c.title)}</div>
+        <div class="car-price">${esc(c.price)}</div>
+        
+        <div class="car-meta">
+          <span class="badge ${badgeClass}">${esc(c.sourceName)}</span>
+          ${c.city ? `<span class="badge b-city">📍 ${esc(c.city)}</span>` : ''}
+          ${c.km   ? `<span class="badge b-km">🛣 ${esc(c.km)}</span>` : ''}
+        </div>
+        
+        ${c.url ? `<a class="car-link" href="${esc(c.url)}" target="_blank">التفاصيل و التواصل</a>` : ''}
+      </div>
+    </div>
+  `}).join('') + '</div>';
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
 </body>
 </html>

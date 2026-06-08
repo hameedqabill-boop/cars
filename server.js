@@ -11,11 +11,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ذاكرة مؤقتة (Cache) لحفظ النتائج وتسريع البحث
+// ذاكرة مؤقتة لتسريع النتائج
 const cache = new Map();
-const CACHE_DURATION = 15 * 60 * 1000; // 15 دقيقة
+const CACHE_DURATION = 15 * 60 * 1000;
 
-// ترويسات متقدمة لتخطي الحظر قدر الإمكان
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
   'Accept-Language': 'ar,en-US;q=0.9',
@@ -50,8 +49,6 @@ async function scrapeHaraj(query, page = 1) {
         img: $el.find('img').first().attr('src') || '',
       });
     });
-    
-    if(results.length === 0) console.log('⚠️ حراج لم يرجع أي نتائج، قد يكون الآيبي محظوراً.');
     return results;
   } catch (error) {
     console.error('❌ خطأ حراج:', error.message);
@@ -61,30 +58,36 @@ async function scrapeHaraj(query, page = 1) {
 
 // ─── سعودي سيل ───────────────────────────────────────
 async function scrapeSaudiSale(query, page = 1) {
-  const url = `https://cars.saudisale.com/listings?search=${encodeURIComponent(query)}&sort=date_desc&page=${page}`;
+  const url = `https://cars.saudisale.com/listings?search=${encodeURIComponent(query)}&page=${page}`;
   try {
     const { data } = await axios.get(url, { headers: HEADERS, timeout: 15000 });
     const $ = cheerio.load(data);
     const results = [];
 
-    $('.listing-card, a[href*="/listings/"]').each((_, el) => {
+    // بحث شامل عن أي رابط إعلان سيارة في الصفحة
+    $('a[href*="/listings/"]').each((_, el) => {
       const $el = $(el);
       const href = $el.attr('href');
-      if (!href || !href.match(/\/listings\/[a-zA-Z0-9]+\//)) return;
+      
+      // تخطي الروابط العامة والتأكد من أنه رابط إعلان فعلي
+      if (!href || href.endsWith('/listings') || href.endsWith('/listings/')) return;
 
-      const title = $el.find('.listing-title, h2, h3').first().text().trim() || $el.attr('title') || '';
+      // سحب العنوان بذكاء من أي عنصر نصي متوفر
+      let title = $el.find('h2, h3, h4, [class*="title"], [class*="name"]').first().text().trim();
+      if (!title) title = $el.attr('title') || '';
+      
       if (!title || title.length < 4) return;
 
       results.push({
         source: 'saudisale',
         sourceName: 'سعودي سيل',
         title: title.replace(/\n/g, ' ').trim(),
-        price: $el.find('.listing-price, .price').first().text().trim() || 'اسأل',
-        city: $el.find('.listing-location, .city').first().text().trim() || '',
-        km: $el.find('.listing-mileage, .km').first().text().trim() || '',
+        price: $el.find('[class*="price"]').first().text().trim() || 'اسأل',
+        city: $el.find('[class*="city"], [class*="location"]').first().text().trim() || '',
+        km: $el.find('[class*="km"], [class*="mileage"]').first().text().trim() || '',
         time: '',
         url: href.startsWith('http') ? href : 'https://cars.saudisale.com' + href,
-        img: $el.find('img').first().attr('src') || '',
+        img: $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '',
       });
     });
     return results;
@@ -99,15 +102,13 @@ app.post('/api/search', async (req, res) => {
   const { query, page = 1 } = req.body;
   if (!query) return res.status(400).json({ error: 'الرجاء إدخال كلمة البحث' });
 
-  // فحص الذاكرة المؤقتة (إذا بحثت عن نفس الكلمة يتم عرض النتيجة فوراً بدون انتظار)
   const cacheKey = `${query}-${page}`;
   if (cache.has(cacheKey)) {
     const cachedData = cache.get(cacheKey);
     if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
-      console.log('⚡ تم جلب النتائج بسرعة من الذاكرة المؤقتة');
       return res.json(cachedData.data);
     }
-    cache.delete(cacheKey); // مسح البيانات إذا انتهت صلاحيتها
+    cache.delete(cacheKey);
   }
 
   const [harajResults, saudiSaleResults] = await Promise.allSettled([
@@ -131,10 +132,9 @@ app.post('/api/search', async (req, res) => {
     harajCount: haraj.length,
     saudiSaleCount: saudisale.length,
     results: merged,
-    errors: merged.length === 0 ? ['ملاحظة: السيرفر محظور حالياً من قبل الموقع، يرجى التشغيل على شبكة منزلية.'] : []
+    errors: []
   };
 
-  // حفظ في الذاكرة المؤقتة
   cache.set(cacheKey, { timestamp: Date.now(), data: responseData });
   res.json(responseData);
 });

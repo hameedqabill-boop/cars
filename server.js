@@ -135,7 +135,6 @@ app.post('/api/search', async (req, res) => {
   const { query, page = 1, source } = req.body;
   if (!query) return res.status(400).json({ error: 'الرجاء إدخال كلمة البحث' });
 
-  // إضافة المتغير 'source' للذاكرة المؤقتة حتى لا تتداخل نتائج موقع مع موقع آخر
   const cacheKey = `${query}-${page}-${source || 'all'}`;
   if (cache.has(cacheKey)) {
     const cachedData = cache.get(cacheKey);
@@ -149,7 +148,6 @@ app.post('/api/search', async (req, res) => {
   let saudiSalePromise = null;
   let expatriatesPromise = null;
 
-  // توجيه البحث حسب اختيارك
   if (source === 'saudisale' || source === 'saudi_sale') {
     saudiSalePromise = scrapeSaudiSale(query, page);
   } else if (source === 'haraj') {
@@ -157,7 +155,6 @@ app.post('/api/search', async (req, res) => {
   } else if (source === 'expatriates') {
     expatriatesPromise = scrapeExpatriates(query, page);
   } else {
-    // إذا لم تحدد مصدر، بيبحث في الثلاثة مع بعض
     harajPromise = scrapeHaraj(query, page);
     saudiSalePromise = scrapeSaudiSale(query, page);
     expatriatesPromise = scrapeExpatriates(query, page);
@@ -182,8 +179,13 @@ app.post('/api/search', async (req, res) => {
   }
 
   const errors = [];
-  if (merged.length === 0 && (source === 'saudisale' || !source)) {
-      errors.push('تنبيه: بعض المواقع (مثل سعودي سيل) تحظر السيرفرات السحابية. لتشغيلها بنجاح 100%، يفضل استضافة البرنامج محلياً.');
+  
+  // توضيح سبب ظهور 0 نتائج للمواقع المحظورة
+  if (source === 'saudisale' && saudisale.length === 0) {
+      errors.push('تنبيه: سعودي سيل يحظر السيرفرات السحابية (Render).');
+  }
+  if (source === 'expatriates' && expatriates.length === 0) {
+      errors.push('تنبيه: إكسباتريتس يستخدم حماية Cloudflare تمنع سيرفرات Render من البحث.');
   }
 
   const responseData = {

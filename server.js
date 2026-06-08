@@ -54,34 +54,33 @@ async function scrapeHaraj(query, page = 1) {
   }
 }
 
-// ─── 2. سعودي سيل ───────────────────────────────────────
-async function scrapeSaudiSale(query, page = 1) {
-  const url = `https://cars.saudisale.com/listings?search=${encodeURIComponent(query)}&page=${page}`;
+// ─── 2. موقع سيارة (Syarah) ─────────────────────────────
+async function scrapeSyarah(query, page = 1) {
+  const url = `https://syarah.com/cars?keyword=${encodeURIComponent(query)}`;
   try {
     const { data } = await axios.get(url, { headers: HEADERS, timeout: 15000 });
     const $ = cheerio.load(data);
     const results = [];
 
-    $('a[href*="/listings/"]').each((_, el) => {
+    $('a[href*="/cars/"]').each((_, el) => {
       const $el = $(el);
       const href = $el.attr('href');
       
-      if (!href || href.endsWith('/listings') || href.endsWith('/listings/')) return;
+      // تجاوز الروابط غير الخاصة بالإعلانات
+      if (!href || href.includes('/brands') || href.includes('/tags')) return;
 
-      let title = $el.find('h2, h3, h4, [class*="title"], [class*="name"]').first().text().trim();
-      if (!title) title = $el.attr('title') || '';
-      
-      if (!title || title.length < 4) return;
+      let title = $el.find('h2, h3, .title, [class*="title"], .car-name').first().text().trim() || $el.attr('title') || $el.text().trim();
+      if (!title || title.length < 3) return;
 
       results.push({
-        source: 'saudisale',
-        sourceName: 'سعودي سيل',
+        source: 'syarah',
+        sourceName: 'سيارة',
         title: title.replace(/\n/g, ' ').trim(),
-        price: $el.find('[class*="price"]').first().text().trim() || 'اسأل',
-        city: $el.find('[class*="city"], [class*="location"]').first().text().trim() || '',
-        km: $el.find('[class*="km"], [class*="mileage"]').first().text().trim() || '',
+        price: $el.find('.price, [class*="price"]').first().text().trim() || 'اسأل',
+        city: $el.find('.city, .location, [class*="city"]').first().text().trim() || 'السعودية',
+        km: $el.find('.km, .mileage, [class*="km"]').first().text().trim() || '',
         time: '',
-        url: href.startsWith('http') ? href : 'https://cars.saudisale.com' + href,
+        url: href.startsWith('http') ? href : 'https://syarah.com' + href,
         img: $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '',
       });
     });
@@ -91,41 +90,37 @@ async function scrapeSaudiSale(query, page = 1) {
   }
 }
 
-// ─── 3. إكسباتريتس (Expatriates) ────────────────────────
-async function scrapeExpatriates(query, page = 1) {
-  // استخدام الرابط المخصص للبحث في قسم السيارات بالسعودية
-  const url = `https://www.expatriates.com/search/saudi-arabia/vehicles-cars-trucks/?q=${encodeURIComponent(query)}`;
+// ─── 3. موقع هتلاقي (Hatla2ee) ──────────────────────────
+async function scrapeHatla2ee(query, page = 1) {
+  const url = `https://ksa.hatla2ee.com/ar/car/search?q=${encodeURIComponent(query)}`;
   try {
     const { data } = await axios.get(url, { headers: HEADERS, timeout: 15000 });
     const $ = cheerio.load(data);
     const results = [];
 
-    // البحث عن جميع القوائم أو الجداول التي تحتوي على رابط يبدأ بـ /cls/ (لأنه مسار الإعلانات لديهم)
-    $('li, tr, .listing-row, .media').each((_, el) => {
+    $('.CarItem, .carItem, .carList .item, a[href*="/car/"]').each((_, el) => {
       const $el = $(el);
-      const $a = $el.find('a[href*="/cls/"]').first();
-      const href = $a.attr('href');
+      const href = $el.attr('href') || $el.find('a').first().attr('href');
+      
+      if (!href || href.includes('/search') || href.includes('/make') || href.includes('/city')) return;
 
-      if (!href) return;
-
-      const title = $a.text().trim() || $el.find('.title, h4, strong').first().text().trim();
-      if (!title || title.length < 3) return;
+      let title = $el.find('.make, .model, h2, h3, .title').first().text().trim() || $el.text().trim();
+      if (!title || title.length < 3 || title.includes('سيارات')) return;
 
       results.push({
-        source: 'expatriates',
-        sourceName: 'إكسباتريتس',
+        source: 'hatla2ee',
+        sourceName: 'هتلاقي',
         title: title.replace(/\n/g, ' ').trim(),
-        price: 'اسأل', // الموقع غالباً يكتب السعر داخل النص، نضعها 'اسأل' كقيمة افتراضية
-        city: $el.find('.location, .region, .city').first().text().trim() || 'غير محدد',
-        km: '',
+        price: $el.find('.price, .carPrice, [class*="price"]').first().text().trim() || 'اسأل',
+        city: $el.find('.city, .location').first().text().trim() || '',
+        km: $el.find('.km, .mileage').first().text().trim() || '',
         time: $el.find('.date, .time').first().text().trim() || '',
-        url: href.startsWith('http') ? href : 'https://www.expatriates.com' + href,
-        img: '', // الموقع قليل يعرض صور مصغرة في صفحة البحث
+        url: href.startsWith('http') ? href : 'https://ksa.hatla2ee.com' + href,
+        img: $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '',
       });
     });
     return results;
   } catch (error) {
-    console.error('❌ خطأ إكسباتريتس:', error.message);
     return [];
   }
 }
@@ -145,56 +140,46 @@ app.post('/api/search', async (req, res) => {
   }
 
   let harajPromise = null;
-  let saudiSalePromise = null;
-  let expatriatesPromise = null;
+  let syarahPromise = null;
+  let hatla2eePromise = null;
 
-  if (source === 'saudisale' || source === 'saudi_sale') {
-    saudiSalePromise = scrapeSaudiSale(query, page);
+  if (source === 'syarah') {
+    syarahPromise = scrapeSyarah(query, page);
   } else if (source === 'haraj') {
     harajPromise = scrapeHaraj(query, page);
-  } else if (source === 'expatriates') {
-    expatriatesPromise = scrapeExpatriates(query, page);
+  } else if (source === 'hatla2ee') {
+    hatla2eePromise = scrapeHatla2ee(query, page);
   } else {
     harajPromise = scrapeHaraj(query, page);
-    saudiSalePromise = scrapeSaudiSale(query, page);
-    expatriatesPromise = scrapeExpatriates(query, page);
+    syarahPromise = scrapeSyarah(query, page);
+    hatla2eePromise = scrapeHatla2ee(query, page);
   }
 
-  const [harajResults, saudiSaleResults, expatriatesResults] = await Promise.allSettled([
+  const [harajResults, syarahResults, hatla2eeResults] = await Promise.allSettled([
     harajPromise || Promise.resolve([]),
-    saudiSalePromise || Promise.resolve([]),
-    expatriatesPromise || Promise.resolve([]),
+    syarahPromise || Promise.resolve([]),
+    hatla2eePromise || Promise.resolve([]),
   ]);
 
   const haraj = harajResults.status === 'fulfilled' ? harajResults.value : [];
-  const saudisale = saudiSaleResults.status === 'fulfilled' ? saudiSaleResults.value : [];
-  const expatriates = expatriatesResults.status === 'fulfilled' ? expatriatesResults.value : [];
+  const syarah = syarahResults.status === 'fulfilled' ? syarahResults.value : [];
+  const hatla2ee = hatla2eeResults.status === 'fulfilled' ? hatla2eeResults.value : [];
 
   const merged = [];
   const seen = new Set();
   
-  for (const item of [...haraj, ...saudisale, ...expatriates]) {
+  for (const item of [...haraj, ...syarah, ...hatla2ee]) {
     const key = item.title.slice(0, 30).toLowerCase();
     if (!seen.has(key)) { seen.add(key); merged.push(item); }
-  }
-
-  const errors = [];
-  
-  // توضيح سبب ظهور 0 نتائج للمواقع المحظورة
-  if (source === 'saudisale' && saudisale.length === 0) {
-      errors.push('تنبيه: سعودي سيل يحظر السيرفرات السحابية (Render).');
-  }
-  if (source === 'expatriates' && expatriates.length === 0) {
-      errors.push('تنبيه: إكسباتريتس يستخدم حماية Cloudflare تمنع سيرفرات Render من البحث.');
   }
 
   const responseData = {
     total: merged.length,
     harajCount: haraj.length,
-    saudiSaleCount: saudisale.length,
-    expatriatesCount: expatriates.length,
+    syarahCount: syarah.length,
+    hatla2eeCount: hatla2ee.length,
     results: merged,
-    errors: errors
+    errors: []
   };
 
   cache.set(cacheKey, { timestamp: Date.now(), data: responseData });

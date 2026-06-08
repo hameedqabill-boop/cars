@@ -11,10 +11,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ذاكرة مؤقتة لتسريع النتائج
-const cache = new Map();
-const CACHE_DURATION = 15 * 60 * 1000;
-
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
   'Accept-Language': 'ar,en-US;q=0.9',
@@ -51,7 +47,6 @@ async function scrapeHaraj(query, page = 1) {
     });
     return results;
   } catch (error) {
-    console.error('❌ خطأ حراج:', error.message);
     return [];
   }
 }
@@ -64,15 +59,12 @@ async function scrapeSaudiSale(query, page = 1) {
     const $ = cheerio.load(data);
     const results = [];
 
-    // بحث شامل عن أي رابط إعلان سيارة في الصفحة
     $('a[href*="/listings/"]').each((_, el) => {
       const $el = $(el);
       const href = $el.attr('href');
       
-      // تخطي الروابط العامة والتأكد من أنه رابط إعلان فعلي
       if (!href || href.endsWith('/listings') || href.endsWith('/listings/')) return;
 
-      // سحب العنوان بذكاء من أي عنصر نصي متوفر
       let title = $el.find('h2, h3, h4, [class*="title"], [class*="name"]').first().text().trim();
       if (!title) title = $el.attr('title') || '';
       
@@ -92,28 +84,32 @@ async function scrapeSaudiSale(query, page = 1) {
     });
     return results;
   } catch (error) {
-    console.error('❌ خطأ سعودي سيل:', error.message);
     return [];
   }
 }
 
 // ─── مسار البحث ────────────────────────────────────────────
 app.post('/api/search', async (req, res) => {
-  const { query, page = 1 } = req.body;
+  // استقبال المصدر (إذا الواجهة أرسلت سعودي سيل فقط أو حراج فقط)
+  const { query, page = 1, source } = req.body;
   if (!query) return res.status(400).json({ error: 'الرجاء إدخال كلمة البحث' });
 
-  const cacheKey = `${query}-${page}`;
-  if (cache.has(cacheKey)) {
-    const cachedData = cache.get(cacheKey);
-    if (Date.now() - cachedData.timestamp < CACHE_DURATION) {
-      return res.json(cachedData.data);
-    }
-    cache.delete(cacheKey);
+  let harajPromise = null;
+  let saudiSalePromise = null;
+
+  // تحديد الموقع المطلوب بناءً على اختيارك
+  if (source === 'saudisale' || source === 'saudi_sale') {
+    saudiSalePromise = scrapeSaudiSale(query, page);
+  } else if (source === 'haraj') {
+    harajPromise = scrapeHaraj(query, page);
+  } else {
+    harajPromise = scrapeHaraj(query, page);
+    saudiSalePromise = scrapeSaudiSale(query, page);
   }
 
   const [harajResults, saudiSaleResults] = await Promise.allSettled([
-    scrapeHaraj(query, page),
-    scrapeSaudiSale(query, page),
+    harajPromise || Promise.resolve([]),
+    saudiSalePromise || Promise.resolve([]),
   ]);
 
   const haraj = harajResults.status === 'fulfilled' ? harajResults.value : [];
@@ -127,16 +123,19 @@ app.post('/api/search', async (req, res) => {
     if (!seen.has(key)) { seen.add(key); merged.push(item); }
   }
 
-  const responseData = {
+  // إعداد رسالة خطأ واضحة إذا بحثت في سعودي سيل وكانت النتيجة صفر بسبب الحظر
+  const errors = [];
+  if (merged.length === 0 && (source === 'saudisale' || !source)) {
+      errors.push('سعودي سيل يحظر السيرفرات السحابية. لتشغيله بنجاح، يجب استضافة البرنامج على سيرفرك المحلي في المنزل.');
+  }
+
+  res.json({
     total: merged.length,
     harajCount: haraj.length,
     saudiSaleCount: saudisale.length,
     results: merged,
-    errors: []
-  };
-
-  cache.set(cacheKey, { timestamp: Date.now(), data: responseData });
-  res.json(responseData);
+    errors: errors
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

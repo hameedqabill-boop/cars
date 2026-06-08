@@ -54,33 +54,32 @@ async function scrapeHaraj(query, page = 1) {
   }
 }
 
-// ─── 2. موقع سيارة (Syarah) ─────────────────────────────
-async function scrapeSyarah(query, page = 1) {
-  const url = `https://syarah.com/cars?keyword=${encodeURIComponent(query)}`;
+// ─── 2. السوق المفتوح (OpenSooq) ────────────────────────
+async function scrapeOpenSooq(query, page = 1) {
+  const url = `https://sa.opensooq.com/ar/%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA-%D9%88%D9%85%D8%B1%D9%83%D8%A8%D8%A7%D8%AA/%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA-%D9%84%D9%84%D8%A8%D9%8A%D8%B9?term=${encodeURIComponent(query)}`;
   try {
     const { data } = await axios.get(url, { headers: HEADERS, timeout: 15000 });
     const $ = cheerio.load(data);
     const results = [];
 
-    $('a[href*="/cars/"]').each((_, el) => {
+    $('a[href*="/ar/search/"], a[href*="/ar/post/"], .mb-32').each((_, el) => {
       const $el = $(el);
-      const href = $el.attr('href');
+      const href = $el.attr('href') || $el.find('a').first().attr('href');
       
-      // تجاوز الروابط غير الخاصة بالإعلانات
-      if (!href || href.includes('/brands') || href.includes('/tags')) return;
+      if (!href || href.includes('search?')) return;
 
-      let title = $el.find('h2, h3, .title, [class*="title"], .car-name').first().text().trim() || $el.attr('title') || $el.text().trim();
+      let title = $el.find('h2, h3, [class*="title"]').first().text().trim() || $el.attr('title') || $el.text().trim();
       if (!title || title.length < 3) return;
 
       results.push({
-        source: 'syarah',
-        sourceName: 'سيارة',
+        source: 'opensooq',
+        sourceName: 'السوق المفتوح',
         title: title.replace(/\n/g, ' ').trim(),
-        price: $el.find('.price, [class*="price"]').first().text().trim() || 'اسأل',
-        city: $el.find('.city, .location, [class*="city"]').first().text().trim() || 'السعودية',
-        km: $el.find('.km, .mileage, [class*="km"]').first().text().trim() || '',
+        price: $el.find('[class*="price"]').first().text().trim() || 'اسأل',
+        city: $el.find('[class*="city"], [class*="location"]').first().text().trim() || '',
+        km: '',
         time: '',
-        url: href.startsWith('http') ? href : 'https://syarah.com' + href,
+        url: href.startsWith('http') ? href : 'https://sa.opensooq.com' + href,
         img: $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '',
       });
     });
@@ -90,32 +89,32 @@ async function scrapeSyarah(query, page = 1) {
   }
 }
 
-// ─── 3. موقع هتلاقي (Hatla2ee) ──────────────────────────
-async function scrapeHatla2ee(query, page = 1) {
-  const url = `https://ksa.hatla2ee.com/ar/car/search?q=${encodeURIComponent(query)}`;
+// ─── 3. يلا موتور (YallaMotor) ──────────────────────────
+async function scrapeYallaMotor(query, page = 1) {
+  const url = `https://ksa.yallamotor.com/ar/used-cars/search?keyword=${encodeURIComponent(query)}`;
   try {
     const { data } = await axios.get(url, { headers: HEADERS, timeout: 15000 });
     const $ = cheerio.load(data);
     const results = [];
 
-    $('.CarItem, .carItem, .carList .item, a[href*="/car/"]').each((_, el) => {
+    $('a[href*="/ar/used-cars/"]').each((_, el) => {
       const $el = $(el);
-      const href = $el.attr('href') || $el.find('a').first().attr('href');
+      const href = $el.attr('href');
       
-      if (!href || href.includes('/search') || href.includes('/make') || href.includes('/city')) return;
+      if (!href || href.includes('/search')) return;
 
-      let title = $el.find('.make, .model, h2, h3, .title').first().text().trim() || $el.text().trim();
-      if (!title || title.length < 3 || title.includes('سيارات')) return;
+      let title = $el.find('h2, h3, [class*="title"]').first().text().trim() || $el.attr('title') || $el.text().trim();
+      if (!title || title.length < 3) return;
 
       results.push({
-        source: 'hatla2ee',
-        sourceName: 'هتلاقي',
+        source: 'yallamotor',
+        sourceName: 'يلا موتور',
         title: title.replace(/\n/g, ' ').trim(),
-        price: $el.find('.price, .carPrice, [class*="price"]').first().text().trim() || 'اسأل',
-        city: $el.find('.city, .location').first().text().trim() || '',
-        km: $el.find('.km, .mileage').first().text().trim() || '',
-        time: $el.find('.date, .time').first().text().trim() || '',
-        url: href.startsWith('http') ? href : 'https://ksa.hatla2ee.com' + href,
+        price: $el.find('[class*="price"]').first().text().trim() || 'اسأل',
+        city: $el.find('[class*="city"], [class*="location"]').first().text().trim() || '',
+        km: $el.find('[class*="km"], [class*="mileage"]').first().text().trim() || '',
+        time: '',
+        url: href.startsWith('http') ? href : 'https://ksa.yallamotor.com' + href,
         img: $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '',
       });
     });
@@ -140,35 +139,35 @@ app.post('/api/search', async (req, res) => {
   }
 
   let harajPromise = null;
-  let syarahPromise = null;
-  let hatla2eePromise = null;
+  let opensooqPromise = null;
+  let yallamotorPromise = null;
 
-  if (source === 'syarah') {
-    syarahPromise = scrapeSyarah(query, page);
+  if (source === 'opensooq') {
+    opensooqPromise = scrapeOpenSooq(query, page);
   } else if (source === 'haraj') {
     harajPromise = scrapeHaraj(query, page);
-  } else if (source === 'hatla2ee') {
-    hatla2eePromise = scrapeHatla2ee(query, page);
+  } else if (source === 'yallamotor') {
+    yallamotorPromise = scrapeYallaMotor(query, page);
   } else {
     harajPromise = scrapeHaraj(query, page);
-    syarahPromise = scrapeSyarah(query, page);
-    hatla2eePromise = scrapeHatla2ee(query, page);
+    opensooqPromise = scrapeOpenSooq(query, page);
+    yallamotorPromise = scrapeYallaMotor(query, page);
   }
 
-  const [harajResults, syarahResults, hatla2eeResults] = await Promise.allSettled([
+  const [harajResults, opensooqResults, yallamotorResults] = await Promise.allSettled([
     harajPromise || Promise.resolve([]),
-    syarahPromise || Promise.resolve([]),
-    hatla2eePromise || Promise.resolve([]),
+    opensooqPromise || Promise.resolve([]),
+    yallamotorPromise || Promise.resolve([]),
   ]);
 
   const haraj = harajResults.status === 'fulfilled' ? harajResults.value : [];
-  const syarah = syarahResults.status === 'fulfilled' ? syarahResults.value : [];
-  const hatla2ee = hatla2eeResults.status === 'fulfilled' ? hatla2eeResults.value : [];
+  const opensooq = opensooqResults.status === 'fulfilled' ? opensooqResults.value : [];
+  const yallamotor = yallamotorResults.status === 'fulfilled' ? yallamotorResults.value : [];
 
   const merged = [];
   const seen = new Set();
   
-  for (const item of [...haraj, ...syarah, ...hatla2ee]) {
+  for (const item of [...haraj, ...opensooq, ...yallamotor]) {
     const key = item.title.slice(0, 30).toLowerCase();
     if (!seen.has(key)) { seen.add(key); merged.push(item); }
   }
@@ -176,8 +175,8 @@ app.post('/api/search', async (req, res) => {
   const responseData = {
     total: merged.length,
     harajCount: haraj.length,
-    syarahCount: syarah.length,
-    hatla2eeCount: hatla2ee.length,
+    opensooqCount: opensooq.length,
+    yallamotorCount: yallamotor.length,
     results: merged,
     errors: []
   };

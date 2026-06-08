@@ -6,7 +6,6 @@
 <title>محرك بحث السيارات المميز</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* المتغيرات الأساسية والألوان */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #f4f6f8; --surface: #ffffff; --surface2: #f0f2f5;
@@ -14,12 +13,11 @@
   --text: #111827; --text2: #4b5563; --text3: #9ca3af;
   --blue: #2563eb; --blue-bg: #dbeafe; --blue-mid: #3b82f6;
   --green: #16a34a; --green-bg: #dcfce7;
-  --amber: #d97706; --amber-bg: #fef3c7;
-  --purple: #9333ea; --purple-bg: #f3e8ff;
+  --amber: #f59e0b; --amber-bg: #fef3c7;
   --red: #dc2626; --red-bg: #fee2e2;
   --r: 12px; --rl: 16px;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -29,65 +27,49 @@
     --blue: #60a5fa; --blue-bg: #1e3a8a; --blue-mid: #3b82f6;
     --green: #4ade80; --green-bg: #14532d;
     --amber: #fbbf24; --amber-bg: #78350f;
-    --purple: #c084fc; --purple-bg: #581c87;
-    --red: #f87171; --red-bg: #7f1d1d;
-    --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-    --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.5);
   }
 }
 body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height: 1.5; }
 .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 5rem; }
 
-/* الهيدر */
 .hdr { text-align: center; margin-bottom: 2.5rem; }
-.hdr h1 { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.hdr p  { font-size: 15px; color: var(--text3); margin-top: 5px; font-weight: 500; }
+.hdr h1 { font-size: 30px; font-weight: 800; }
+.version-badge { font-size: 14px; font-weight: 700; background: var(--blue-bg); color: var(--blue); padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-right: 8px; border: 1px solid var(--blue-mid); }
+.hdr p  { font-size: 15px; color: var(--text3); margin-top: 8px; font-weight: 500; }
 
-/* أزرار المصادر (Pills) */
 .sources { display:flex; justify-content:center; gap:12px; margin-bottom:1.5rem; flex-wrap:wrap; }
-.src-pill { 
-  display:flex; align-items:center; gap:8px; padding:8px 18px; border: 1.5px solid var(--border2); 
-  border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text2); 
-  background: var(--surface); cursor: pointer; transition: all 0.2s ease; user-select: none;
-}
-.src-pill input { display: none; } /* إخفاء مربع الاختيار الافتراضي */
+.src-pill { display:flex; align-items:center; gap:8px; padding:8px 18px; border: 1.5px solid var(--border2); border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text2); background: var(--surface); cursor: pointer; transition: 0.2s; user-select: none; }
+.src-pill input { display: none; }
 .src-pill:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
 .src-pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
 
-/* مربع البحث السريع */
 .search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
 .search-row  { display:flex; gap:12px; }
-.search-row input { flex:1; padding:14px 20px; font-family:'Cairo',sans-serif; font-size:16px; border: 1.5px solid var(--border2); border-radius: var(--r); background: var(--surface2); color: var(--text); outline:none; transition: border-color 0.2s; }
+.search-row input { flex:1; padding:14px 20px; font-family:'Cairo',sans-serif; font-size:16px; border: 1.5px solid var(--border2); border-radius: var(--r); background: var(--surface2); color: var(--text); outline:none; }
 .search-row input:focus { border-color: var(--blue-mid); }
-.search-row button { padding: 0 32px; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); color: #fff; border:none; border-radius: var(--r); font-family:'Cairo',sans-serif; font-size:16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.15s; }
+.search-row button { padding: 0 32px; background: var(--blue); color: #fff; border:none; border-radius: var(--r); font-family:'Cairo',sans-serif; font-size:16px; font-weight: 700; cursor: pointer; transition: 0.15s; }
 .search-row button:hover { opacity: 0.9; transform: scale(1.02); }
-.search-row button:active { transform: scale(0.98); }
-.search-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.search-row button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* الكلمات الدلالية */
 .quick-label { font-size:13px; color:var(--text3); margin:16px 0 10px; font-weight: 600; }
 .qf-row { display:flex; flex-wrap:wrap; gap:8px; }
 .qf { padding:6px 16px; border: 1px solid var(--border2); border-radius: 20px; background: var(--surface); color: var(--text2); font-family: 'Cairo',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
 .qf:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-/* الإحصائيات والفلاتر */
 .stats { display:flex; gap:10px; margin-bottom: 1rem; flex-wrap:wrap; align-items: center; justify-content: center; }
 .stat-chip { padding:6px 16px; border-radius: 20px; font-size:13px; font-weight:700; box-shadow: var(--shadow); }
 .stat-total { background: var(--blue-bg); color: var(--blue); }
 .stat-haraj { background: var(--green-bg); color: var(--green); }
-.stat-saudi { background: var(--amber-bg); color: var(--amber); }
-.stat-expat { background: var(--purple-bg); color: var(--purple); }
+.stat-syarah { background: var(--blue-bg); color: var(--blue); }
+.stat-hatla2ee { background: var(--amber-bg); color: var(--amber); }
 
-/* الأخطاء */
 .err { background: var(--red-bg); border: 1px solid var(--red); color: var(--red); padding: 12px 16px; border-radius: var(--r); font-size: 14px; font-weight: 600; margin-bottom: 1.5rem; text-align: center; }
 
-/* كروت السيارات (تصميم شبكي Grid) */
 .cars { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.car { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; box-shadow: var(--shadow); opacity: 0; animation: fadeInUp 0.5s forwards; }
+.car { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); display: flex; flex-direction: column; overflow: hidden; transition: 0.3s; box-shadow: var(--shadow); animation: fadeInUp 0.5s forwards; }
 .car:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: var(--border2); }
-
-.car-img { width: 100%; height: 220px; background: var(--surface2); overflow: hidden; position: relative; }
-.car-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.car-img { width: 100%; height: 220px; background: var(--surface2); overflow: hidden; }
+.car-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
 .car:hover .car-img img { transform: scale(1.05); }
 .car-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:48px; opacity: 0.5; }
 
@@ -98,60 +80,45 @@ body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); 
 .car-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
 .b-haraj  { background: var(--green-bg); color: var(--green); }
-.b-saudi  { background: var(--amber-bg); color: var(--amber); }
-.b-expat  { background: var(--purple-bg); color: var(--purple); }
+.b-syarah { background: var(--blue-bg); color: var(--blue); }
+.b-hatla2ee { background: var(--amber-bg); color: var(--amber); }
 .b-city   { background: var(--surface2); color: var(--text2); }
 .b-km     { background: var(--surface2); color: var(--text2); }
-.b-time   { background: var(--surface2); color: var(--text3); }
 
-.car-link { font-size: 14px; color: #fff; background: var(--blue); text-decoration: none; font-weight: 600; text-align: center; padding: 10px; border-radius: var(--r); margin-top: auto; transition: background 0.2s; }
+.car-link { font-size: 14px; color: #fff; background: var(--blue); text-decoration: none; font-weight: 600; text-align: center; padding: 10px; border-radius: var(--r); margin-top: auto; transition: 0.2s; }
 .car-link:hover { background: var(--blue-mid); }
 
-/* الأنميشن */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* شاشة التحميل */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .loading { display:flex; justify-content:center; gap:8px; padding:4rem; }
 .loading span { width:12px; height:12px; border-radius:50%; background: var(--blue); animation: bounce 0.6s infinite alternate; }
 .loading span:nth-child(2) { animation-delay: 0.2s; }
 .loading span:nth-child(3) { animation-delay: 0.4s; }
 @keyframes bounce { to { transform: translateY(-10px); opacity: 0.5; } }
-
 .empty { text-align:center; padding:4rem; color:var(--text3); font-size:18px; font-weight: 600; }
 
-/* توافق الشاشات الصغيرة */
-@media(max-width: 600px){
-  .search-row { flex-direction: column; }
-  .search-row button { padding: 14px; }
-  .car-img { height: 200px; }
-}
+@media(max-width: 600px){ .search-row { flex-direction: column; } .search-row button { padding: 14px; } .car-img { height: 200px; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 
- <div class="hdr">
-    <h1>
-      🚀 بحث السيارات الذكي 
-      <span style="font-size: 14px; font-weight: 700; background: var(--blue-bg); color: var(--blue); padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-right: 8px; border: 1px solid var(--blue-mid);">v1.1</span>
-    </h1>
-    <p>ابحث في حراج، سعودي سيل، وإكسباتريتس في نفس اللحظة</p>
+  <div class="hdr">
+    <h1>🚀 بحث السيارات الذكي <span class="version-badge">v1.2</span></h1>
+    <p>ابحث في حراج، سيارة، وهتلاقي في نفس اللحظة</p>
   </div>
+
   <div class="sources">
     <label class="src-pill active" id="pill-haraj">
       <input type="checkbox" id="chk-haraj" checked onchange="togglePill('haraj')">
       🟢 حراج
     </label>
-    <label class="src-pill active" id="pill-saudi">
-      <input type="checkbox" id="chk-saudi" checked onchange="togglePill('saudi')">
-      🟡 سعودي سيل
+    <label class="src-pill active" id="pill-syarah">
+      <input type="checkbox" id="chk-syarah" checked onchange="togglePill('syarah')">
+      🔵 سيارة
     </label>
-    <label class="src-pill active" id="pill-expat">
-      <input type="checkbox" id="chk-expat" checked onchange="togglePill('expat')">
-      🟣 إكسباتريتس
+    <label class="src-pill active" id="pill-hatla2ee">
+      <input type="checkbox" id="chk-hatla2ee" checked onchange="togglePill('hatla2ee')">
+      🟠 هتلاقي
     </label>
   </div>
 
@@ -169,29 +136,23 @@ body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); 
       <button class="qf" onclick="qs('كابريس')">كابريس</button>
       <button class="qf" onclick="qs('يوكن')">يوكن</button>
       <button class="qf" onclick="qs('باترول')">باترول</button>
-      <button class="qf" onclick="qs('النترا')">النترا</button>
     </div>
   </div>
 
   <div id="statsBar" style="display:none" class="stats"></div>
   <div id="errBar" style="display:none" class="err"></div>
-  
   <div id="results"></div>
 
 </div>
 
 <script>
-let allResults = []; // لتخزين جميع النتائج
-
-// دعم زر الإدخال (Enter) للبحث
+let allResults = [];
 document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
 
-// تغيير لون الأزرار عند الضغط عليها
 function togglePill(id) {
   const pill = document.getElementById('pill-'+id);
   const chk  = document.getElementById('chk-'+id);
   pill.classList.toggle('active', chk.checked);
-  // تحديث النتائج فوراً عند تفعيل/تعطيل مصدر بدون إعادة البحث من السيرفر
   if(allResults.length > 0) renderVisible();
 }
 
@@ -202,13 +163,10 @@ async function doSearch() {
   if (!query) return;
 
   const harajOn = document.getElementById('chk-haraj').checked;
-  const saudiOn = document.getElementById('chk-saudi').checked;
-  const expatOn = document.getElementById('chk-expat').checked;
+  const syarahOn = document.getElementById('chk-syarah').checked;
+  const hatla2eeOn = document.getElementById('chk-hatla2ee').checked;
   
-  if (!harajOn && !saudiOn && !expatOn) { 
-      alert('يرجى اختيار موقع واحد على الأقل للبحث 🚗'); 
-      return; 
-  }
+  if (!harajOn && !syarahOn && !hatla2eeOn) { alert('يرجى اختيار موقع واحد على الأقل 🚗'); return; }
 
   const btn = document.getElementById('btn');
   btn.disabled = true; btn.textContent = 'جاري المسح...';
@@ -216,13 +174,12 @@ async function doSearch() {
   document.getElementById('statsBar').style.display = 'none';
   document.getElementById('results').innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
 
-  // تحديد الـ Source إذا تم اختيار موقع واحد فقط لتخفيف الضغط على السيرفر
   let sourceParam = undefined;
-  let checkedCount = [harajOn, saudiOn, expatOn].filter(Boolean).length;
+  let checkedCount = [harajOn, syarahOn, hatla2eeOn].filter(Boolean).length;
   if (checkedCount === 1) {
     if (harajOn) sourceParam = 'haraj';
-    if (saudiOn) sourceParam = 'saudisale';
-    if (expatOn) sourceParam = 'expatriates';
+    if (syarahOn) sourceParam = 'syarah';
+    if (hatla2eeOn) sourceParam = 'hatla2ee';
   }
 
   try {
@@ -237,17 +194,15 @@ async function doSearch() {
 
     allResults = data.results || [];
 
-    // عرض الإحصائيات العلوية
     const sb = document.getElementById('statsBar');
     sb.innerHTML = `
       <span class="stat-chip stat-total">الكل: ${data.total}</span>
       ${data.harajCount > 0 ? `<span class="stat-chip stat-haraj">حراج: ${data.harajCount}</span>` : ''}
-      ${data.saudiSaleCount > 0 ? `<span class="stat-chip stat-saudi">سعودي سيل: ${data.saudiSaleCount}</span>` : ''}
-      ${data.expatriatesCount > 0 ? `<span class="stat-chip stat-expat">إكسباتريتس: ${data.expatriatesCount}</span>` : ''}
+      ${data.syarahCount > 0 ? `<span class="stat-chip stat-syarah">سيارة: ${data.syarahCount}</span>` : ''}
+      ${data.hatla2eeCount > 0 ? `<span class="stat-chip stat-hatla2ee">هتلاقي: ${data.hatla2eeCount}</span>` : ''}
     `;
     sb.style.display = data.total > 0 ? 'flex' : 'none';
 
-    // عرض الأخطاء أو التنبيهات إن وجدت
     if (data.errors && data.errors.length) {
       const eb = document.getElementById('errBar');
       eb.textContent = '⚠️ ' + data.errors.join(' | ');
@@ -256,7 +211,7 @@ async function doSearch() {
 
     renderVisible();
   } catch(err) {
-    document.getElementById('errBar').textContent = '⚠️ حدث خطأ أثناء الاتصال بالسيرفر: ' + err.message;
+    document.getElementById('errBar').textContent = '⚠️ حدث خطأ أثناء الاتصال: ' + err.message;
     document.getElementById('errBar').style.display = 'block';
     document.getElementById('results').innerHTML = '';
   } finally {
@@ -264,33 +219,29 @@ async function doSearch() {
   }
 }
 
-// عرض السيارات المطابقة للمواقع المحددة فقط
 function renderVisible() {
   const harajOn = document.getElementById('chk-haraj').checked;
-  const saudiOn = document.getElementById('chk-saudi').checked;
-  const expatOn = document.getElementById('chk-expat').checked;
+  const syarahOn = document.getElementById('chk-syarah').checked;
+  const hatla2eeOn = document.getElementById('chk-hatla2ee').checked;
 
   const filtered = allResults.filter(c => {
     if(c.source === 'haraj' && !harajOn) return false;
-    if(c.source === 'saudisale' && !saudiOn) return false;
-    if(c.source === 'expatriates' && !expatOn) return false;
+    if(c.source === 'syarah' && !syarahOn) return false;
+    if(c.source === 'hatla2ee' && !hatla2eeOn) return false;
     return true;
   });
 
   const div = document.getElementById('results');
 
   if (!filtered.length) {
-    div.innerHTML = '<div class="empty">🔍 لم نجد أي سيارة مطابقة، جرب تغيير كلمة البحث أو تحديد مواقع أكثر.</div>';
+    div.innerHTML = '<div class="empty">🔍 لم نجد أي سيارة مطابقة، جرب تغيير كلمة البحث.</div>';
     return;
   }
 
-  // رسم الكروت بتأثير حركة (Delay) متدرج لكل كرت
   div.innerHTML = '<div class="cars">' + filtered.map((c, index) => {
-    
-    // تحديد لون الـ Badge واسم الموقع
     let badgeClass = 'b-haraj';
-    if(c.source === 'saudisale') badgeClass = 'b-saudi';
-    if(c.source === 'expatriates') badgeClass = 'b-expat';
+    if(c.source === 'syarah') badgeClass = 'b-syarah';
+    if(c.source === 'hatla2ee') badgeClass = 'b-hatla2ee';
 
     return `
     <div class="car" style="animation-delay: ${index * 0.05}s">
@@ -305,7 +256,6 @@ function renderVisible() {
           <span class="badge ${badgeClass}">${esc(c.sourceName)}</span>
           ${c.city ? `<span class="badge b-city">📍 ${esc(c.city)}</span>` : ''}
           ${c.km   ? `<span class="badge b-km">🛣 ${esc(c.km)}</span>` : ''}
-          ${c.time ? `<span class="badge b-time">🕐 ${esc(c.time)}</span>` : ''}
         </div>
         
         ${c.url ? `<a class="car-link" href="${esc(c.url)}" target="_blank">التفاصيل و التواصل</a>` : ''}

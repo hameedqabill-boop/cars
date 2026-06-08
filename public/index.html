@@ -3,106 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>سيارات — حراج + سعودي سيل</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>محرك بحث السيارات المميز</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* المتغيرات الأساسية والألوان */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #f2f3f5; --surface: #fff; --surface2: #f0f2f5;
-  --border: rgba(0,0,0,.09); --border2: rgba(0,0,0,.16);
-  --text: #1a1a1a; --text2: #555; --text3: #999;
-  --blue: #185FA5; --blue-bg: #E6F1FB; --blue-mid: #378ADD;
-  --green-bg: #EAF3DE; --green: #3B6D11;
-  --amber-bg: #FAEEDA; --amber: #854F0B;
-  --red-bg: #FCEBEB; --red: #791F1F;
-  --r: 10px; --rl: 14px;
+  --bg: #f4f6f8; --surface: #ffffff; --surface2: #f0f2f5;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.12);
+  --text: #111827; --text2: #4b5563; --text3: #9ca3af;
+  --blue: #2563eb; --blue-bg: #dbeafe; --blue-mid: #3b82f6;
+  --green: #16a34a; --green-bg: #dcfce7;
+  --amber: #d97706; --amber-bg: #fef3c7;
+  --purple: #9333ea; --purple-bg: #f3e8ff;
+  --red: #dc2626; --red-bg: #fee2e2;
+  --r: 12px; --rl: 16px;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg:#18191b; --surface:#242528; --surface2:#2e3033;
-    --border:rgba(255,255,255,.08); --border2:rgba(255,255,255,.15);
-    --text:#f0f0f0; --text2:#aaa; --text3:#666;
-    --blue:#5ba3e0; --blue-bg:#0e2a45; --blue-mid:#4d8fc4;
-    --green-bg:#1a2e0e; --green:#8dcf52;
-    --amber-bg:#2e1e05; --amber:#e8a84a;
-    --red-bg:#2e0d0d; --red:#f09595;
+    --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+    --text: #f8fafc; --text2: #cbd5e1; --text3: #94a3b8;
+    --blue: #60a5fa; --blue-bg: #1e3a8a; --blue-mid: #3b82f6;
+    --green: #4ade80; --green-bg: #14532d;
+    --amber: #fbbf24; --amber-bg: #78350f;
+    --purple: #c084fc; --purple-bg: #581c87;
+    --red: #f87171; --red-bg: #7f1d1d;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    --shadow-hover: 0 10px 15px -3px rgba(0,0,0,0.5);
   }
 }
-body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-.wrap { max-width:860px; margin:0 auto; padding:1.75rem 1rem 4rem; }
+body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height: 1.5; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 5rem; }
 
-/* header */
-.hdr { text-align:center; margin-bottom:1.75rem; }
-.hdr h1 { font-size:24px; font-weight:700; }
-.hdr p  { font-size:13px; color:var(--text3); margin-top:3px; }
+/* الهيدر */
+.hdr { text-align: center; margin-bottom: 2.5rem; }
+.hdr h1 { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, var(--blue), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hdr p  { font-size: 15px; color: var(--text3); margin-top: 5px; font-weight: 500; }
 
-/* sources row */
-.sources { display:flex; justify-content:center; gap:10px; margin-bottom:1.5rem; flex-wrap:wrap; }
-.src-pill { display:flex; align-items:center; gap:6px; padding:6px 14px; border:0.5px solid var(--border2); border-radius:20px; font-size:13px; font-weight:500; color:var(--text2); background:var(--surface); cursor:pointer; transition:.12s; }
-.src-pill input { width:16px; height:16px; accent-color:var(--blue); cursor:pointer; }
-.src-pill.active { background:var(--blue-bg); border-color:var(--blue-mid); color:var(--blue); }
+/* أزرار المصادر (Pills) */
+.sources { display:flex; justify-content:center; gap:12px; margin-bottom:1.5rem; flex-wrap:wrap; }
+.src-pill { 
+  display:flex; align-items:center; gap:8px; padding:8px 18px; border: 1.5px solid var(--border2); 
+  border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text2); 
+  background: var(--surface); cursor: pointer; transition: all 0.2s ease; user-select: none;
+}
+.src-pill input { display: none; } /* إخفاء مربع الاختيار الافتراضي */
+.src-pill:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
+.src-pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
 
-/* search card */
-.search-card { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--rl); padding:1.25rem; margin-bottom:1rem; }
-.search-row  { display:flex; gap:8px; }
-.search-row input { flex:1; padding:11px 16px; font-family:'Cairo',sans-serif; font-size:15px; border:0.5px solid var(--border2); border-radius:var(--r); background:var(--surface2); color:var(--text); outline:none; transition:.15s; }
-.search-row input:focus { border-color:var(--blue-mid); }
-.search-row button { padding:11px 26px; background:var(--blue); color:#fff; border:none; border-radius:var(--r); font-family:'Cairo',sans-serif; font-size:15px; font-weight:600; cursor:pointer; white-space:nowrap; transition:opacity .15s; }
-.search-row button:hover { opacity:.88; }
-.search-row button:disabled { opacity:.45; cursor:not-allowed; }
-.quick-label { font-size:12px; color:var(--text3); margin:12px 0 7px; }
-.qf-row { display:flex; flex-wrap:wrap; gap:6px; }
-.qf { padding:5px 14px; border:0.5px solid var(--border2); border-radius:20px; background:transparent; color:var(--text2); font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; transition:.12s; }
-.qf:hover { background:var(--blue-bg); border-color:var(--blue-mid); color:var(--blue); }
+/* مربع البحث السريع */
+.search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+.search-row  { display:flex; gap:12px; }
+.search-row input { flex:1; padding:14px 20px; font-family:'Cairo',sans-serif; font-size:16px; border: 1.5px solid var(--border2); border-radius: var(--r); background: var(--surface2); color: var(--text); outline:none; transition: border-color 0.2s; }
+.search-row input:focus { border-color: var(--blue-mid); }
+.search-row button { padding: 0 32px; background: linear-gradient(135deg, var(--blue), var(--blue-mid)); color: #fff; border:none; border-radius: var(--r); font-family:'Cairo',sans-serif; font-size:16px; font-weight: 700; cursor: pointer; transition: transform 0.1s, opacity 0.15s; }
+.search-row button:hover { opacity: 0.9; transform: scale(1.02); }
+.search-row button:active { transform: scale(0.98); }
+.search-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-/* stats bar */
-.stats { display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; }
-.stat-chip { padding:5px 14px; border-radius:20px; font-size:13px; font-weight:500; }
-.stat-total { background:var(--blue-bg); color:var(--blue); }
-.stat-haraj { background:var(--green-bg); color:var(--green); }
-.stat-saudi { background:var(--amber-bg); color:var(--amber); }
+/* الكلمات الدلالية */
+.quick-label { font-size:13px; color:var(--text3); margin:16px 0 10px; font-weight: 600; }
+.qf-row { display:flex; flex-wrap:wrap; gap:8px; }
+.qf { padding:6px 16px; border: 1px solid var(--border2); border-radius: 20px; background: var(--surface); color: var(--text2); font-family: 'Cairo',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+.qf:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
 
-/* filter tabs */
-.filter-row { display:flex; gap:8px; margin-bottom:1.25rem; }
-.ftab { padding:6px 18px; border:0.5px solid var(--border2); border-radius:20px; background:transparent; color:var(--text2); font-family:'Cairo',sans-serif; font-size:13px; cursor:pointer; transition:.12s; }
-.ftab.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+/* الإحصائيات والفلاتر */
+.stats { display:flex; gap:10px; margin-bottom: 1rem; flex-wrap:wrap; align-items: center; justify-content: center; }
+.stat-chip { padding:6px 16px; border-radius: 20px; font-size:13px; font-weight:700; box-shadow: var(--shadow); }
+.stat-total { background: var(--blue-bg); color: var(--blue); }
+.stat-haraj { background: var(--green-bg); color: var(--green); }
+.stat-saudi { background: var(--amber-bg); color: var(--amber); }
+.stat-expat { background: var(--purple-bg); color: var(--purple); }
 
-/* error */
-.err { background:var(--red-bg); border:0.5px solid #f09595; color:var(--red); padding:11px 15px; border-radius:var(--r); font-size:13px; margin-bottom:1rem; }
+/* الأخطاء */
+.err { background: var(--red-bg); border: 1px solid var(--red); color: var(--red); padding: 12px 16px; border-radius: var(--r); font-size: 14px; font-weight: 600; margin-bottom: 1.5rem; text-align: center; }
 
-/* cars list */
-.cars { display:flex; flex-direction:column; gap:10px; }
-.car { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--rl); display:flex; gap:0; overflow:hidden; transition:border-color .15s; }
-.car:hover { border-color:var(--border2); }
-.car-img { width:160px; min-height:130px; flex-shrink:0; background:var(--surface2); overflow:hidden; }
-.car-img img { width:100%; height:100%; object-fit:cover; display:block; }
-.car-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:36px; color:var(--border2); }
-.car-body { flex:1; padding:1rem 1.25rem; display:flex; flex-direction:column; gap:6px; min-width:0; }
-.car-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-.car-title { font-size:15px; font-weight:600; line-height:1.4; }
-.car-price { font-size:16px; font-weight:700; color:var(--blue); white-space:nowrap; }
-.car-meta { display:flex; gap:6px; flex-wrap:wrap; }
-.badge { font-size:12px; padding:3px 10px; border-radius:20px; }
-.b-haraj  { background:var(--green-bg); color:var(--green); }
-.b-saudi  { background:var(--amber-bg); color:var(--amber); }
-.b-city   { background:var(--blue-bg);  color:var(--blue); }
-.b-km     { background:var(--surface2); color:var(--text2); }
-.b-time   { background:var(--surface2); color:var(--text3); }
-.car-link { font-size:13px; color:var(--blue); text-decoration:none; font-weight:500; margin-top:auto; }
-.car-link:hover { text-decoration:underline; }
+/* كروت السيارات (تصميم شبكي Grid) */
+.cars { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.car { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s ease; box-shadow: var(--shadow); opacity: 0; animation: fadeInUp 0.5s forwards; }
+.car:hover { transform: translateY(-5px); box-shadow: var(--shadow-hover); border-color: var(--border2); }
 
-/* loading */
-.loading { display:flex; justify-content:center; gap:7px; padding:3.5rem; }
-.loading span { width:9px; height:9px; border-radius:50%; background:var(--blue-mid); animation:pulse .8s infinite; }
-.loading span:nth-child(2){animation-delay:.15s} .loading span:nth-child(3){animation-delay:.3s}
-@keyframes pulse{0%,80%,100%{transform:scale(.5);opacity:.3}40%{transform:scale(1);opacity:1}}
+.car-img { width: 100%; height: 220px; background: var(--surface2); overflow: hidden; position: relative; }
+.car-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+.car:hover .car-img img { transform: scale(1.05); }
+.car-img .no-img { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:48px; opacity: 0.5; }
 
-.empty { text-align:center; padding:3.5rem; color:var(--text3); font-size:15px; }
+.car-body { padding: 1.25rem; display: flex; flex-direction: column; flex: 1; }
+.car-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.car-price { font-size: 18px; font-weight: 800; color: var(--blue); margin-bottom: 12px; }
 
-/* responsive */
-@media(max-width:560px){
-  .car { flex-direction:column; }
-  .car-img { width:100%; height:180px; }
+.car-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.badge { font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+.b-haraj  { background: var(--green-bg); color: var(--green); }
+.b-saudi  { background: var(--amber-bg); color: var(--amber); }
+.b-expat  { background: var(--purple-bg); color: var(--purple); }
+.b-city   { background: var(--surface2); color: var(--text2); }
+.b-km     { background: var(--surface2); color: var(--text2); }
+.b-time   { background: var(--surface2); color: var(--text3); }
+
+.car-link { font-size: 14px; color: #fff; background: var(--blue); text-decoration: none; font-weight: 600; text-align: center; padding: 10px; border-radius: var(--r); margin-top: auto; transition: background 0.2s; }
+.car-link:hover { background: var(--blue-mid); }
+
+/* الأنميشن */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* شاشة التحميل */
+.loading { display:flex; justify-content:center; gap:8px; padding:4rem; }
+.loading span { width:12px; height:12px; border-radius:50%; background: var(--blue); animation: bounce 0.6s infinite alternate; }
+.loading span:nth-child(2) { animation-delay: 0.2s; }
+.loading span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { to { transform: translateY(-10px); opacity: 0.5; } }
+
+.empty { text-align:center; padding:4rem; color:var(--text3); font-size:18px; font-weight: 600; }
+
+/* توافق الشاشات الصغيرة */
+@media(max-width: 600px){
+  .search-row { flex-direction: column; }
+  .search-row button { padding: 14px; }
+  .car-img { height: 200px; }
 }
 </style>
 </head>
@@ -110,8 +134,8 @@ body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); 
 <div class="wrap">
 
   <div class="hdr">
-    <h1>🚗 بحث السيارات</h1>
-    <p>حراج + سعودي سيل في مكان واحد</p>
+    <h1>🚀 بحث السيارات الذكي</h1>
+    <p>ابحث في حراج، سعودي سيل، وإكسباتريتس في نفس اللحظة</p>
   </div>
 
   <div class="sources">
@@ -123,58 +147,53 @@ body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); 
       <input type="checkbox" id="chk-saudi" checked onchange="togglePill('saudi')">
       🟡 سعودي سيل
     </label>
+    <label class="src-pill active" id="pill-expat">
+      <input type="checkbox" id="chk-expat" checked onchange="togglePill('expat')">
+      🟣 إكسباتريتس
+    </label>
   </div>
 
   <div class="search-card">
     <div class="search-row">
-      <input type="text" id="q" placeholder="مثال: لكزس 2023، كامري، جيب رنجلر..." />
-      <button id="btn" onclick="doSearch()">بحث</button>
+      <input type="text" id="q" placeholder="ابحث عن سيارتك (مثال: تاهو 2023، لكزس، كامري...)" autocomplete="off" />
+      <button id="btn" onclick="doSearch()">ابحث الآن</button>
     </div>
-    <div class="quick-label">بحث سريع</div>
+    <div class="quick-label">⚡ بحث سريع</div>
     <div class="qf-row">
       <button class="qf" onclick="qs('تويوتا')">تويوتا</button>
       <button class="qf" onclick="qs('لكزس')">لكزس</button>
-      <button class="qf" onclick="qs('نيسان')">نيسان</button>
       <button class="qf" onclick="qs('مرسيدس')">مرسيدس</button>
-      <button class="qf" onclick="qs('شيفروليه كابريس')">كابريس</button>
-      <button class="qf" onclick="qs('GMC يوكن')">يوكن</button>
-      <button class="qf" onclick="qs('تاهو')">تاهو</button>
-      <button class="qf" onclick="qs('كامري')">كامري</button>
+      <button class="qf" onclick="qs('جيب رنجلر')">جيب رنجلر</button>
+      <button class="qf" onclick="qs('كابريس')">كابريس</button>
+      <button class="qf" onclick="qs('يوكن')">يوكن</button>
       <button class="qf" onclick="qs('باترول')">باترول</button>
-      <button class="qf" onclick="qs('بي ام دبليو')">BMW</button>
+      <button class="qf" onclick="qs('النترا')">النترا</button>
     </div>
   </div>
 
   <div id="statsBar" style="display:none" class="stats"></div>
-  <div id="filterRow" style="display:none" class="filter-row">
-    <button class="ftab active" onclick="setFilter('all',this)">الكل</button>
-    <button class="ftab" onclick="setFilter('haraj',this)">حراج فقط</button>
-    <button class="ftab" onclick="setFilter('saudisale',this)">سعودي سيل فقط</button>
-  </div>
   <div id="errBar" style="display:none" class="err"></div>
+  
   <div id="results"></div>
 
 </div>
-<script>
-let allResults = [];
-let activeFilter = 'all';
 
+<script>
+let allResults = []; // لتخزين جميع النتائج
+
+// دعم زر الإدخال (Enter) للبحث
 document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
 
+// تغيير لون الأزرار عند الضغط عليها
 function togglePill(id) {
   const pill = document.getElementById('pill-'+id);
   const chk  = document.getElementById('chk-'+id);
   pill.classList.toggle('active', chk.checked);
+  // تحديث النتائج فوراً عند تفعيل/تعطيل مصدر بدون إعادة البحث من السيرفر
+  if(allResults.length > 0) renderVisible();
 }
 
 function qs(q) { document.getElementById('q').value = q; doSearch(); }
-
-function setFilter(f, btn) {
-  activeFilter = f;
-  document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderVisible();
-}
 
 async function doSearch() {
   const query = document.getElementById('q').value.trim();
@@ -182,38 +201,51 @@ async function doSearch() {
 
   const harajOn = document.getElementById('chk-haraj').checked;
   const saudiOn = document.getElementById('chk-saudi').checked;
-  if (!harajOn && !saudiOn) { alert('اختر مصدر واحد على الأقل'); return; }
+  const expatOn = document.getElementById('chk-expat').checked;
+  
+  if (!harajOn && !saudiOn && !expatOn) { 
+      alert('يرجى اختيار موقع واحد على الأقل للبحث 🚗'); 
+      return; 
+  }
 
   const btn = document.getElementById('btn');
-  btn.disabled = true; btn.textContent = 'جاري البحث...';
+  btn.disabled = true; btn.textContent = 'جاري المسح...';
   document.getElementById('errBar').style.display = 'none';
   document.getElementById('statsBar').style.display = 'none';
-  document.getElementById('filterRow').style.display = 'none';
   document.getElementById('results').innerHTML = '<div class="loading"><span></span><span></span><span></span></div>';
+
+  // تحديد الـ Source إذا تم اختيار موقع واحد فقط لتخفيف الضغط على السيرفر
+  let sourceParam = undefined;
+  let checkedCount = [harajOn, saudiOn, expatOn].filter(Boolean).length;
+  if (checkedCount === 1) {
+    if (harajOn) sourceParam = 'haraj';
+    if (saudiOn) sourceParam = 'saudisale';
+    if (expatOn) sourceParam = 'expatriates';
+  }
 
   try {
     const res = await fetch('/api/search', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ query, haraj: harajOn, saudisale: saudiOn })
+      body: JSON.stringify({ query, source: sourceParam })
     });
+    
     const data = await res.json();
     if (data.error) throw new Error(data.error);
 
     allResults = data.results || [];
-    activeFilter = 'all';
-    document.querySelectorAll('.ftab').forEach((b,i)=>b.classList.toggle('active',i===0));
 
-    // stats
+    // عرض الإحصائيات العلوية
     const sb = document.getElementById('statsBar');
     sb.innerHTML = `
       <span class="stat-chip stat-total">الكل: ${data.total}</span>
-      ${harajOn ? `<span class="stat-chip stat-haraj">حراج: ${data.harajCount}</span>` : ''}
-      ${saudiOn ? `<span class="stat-chip stat-saudi">سعودي سيل: ${data.saudiSaleCount}</span>` : ''}
+      ${data.harajCount > 0 ? `<span class="stat-chip stat-haraj">حراج: ${data.harajCount}</span>` : ''}
+      ${data.saudiSaleCount > 0 ? `<span class="stat-chip stat-saudi">سعودي سيل: ${data.saudiSaleCount}</span>` : ''}
+      ${data.expatriatesCount > 0 ? `<span class="stat-chip stat-expat">إكسباتريتس: ${data.expatriatesCount}</span>` : ''}
     `;
-    sb.style.display = 'flex';
-    document.getElementById('filterRow').style.display = data.harajCount > 0 && data.saudiSaleCount > 0 ? 'flex' : 'none';
+    sb.style.display = data.total > 0 ? 'flex' : 'none';
 
+    // عرض الأخطاء أو التنبيهات إن وجدت
     if (data.errors && data.errors.length) {
       const eb = document.getElementById('errBar');
       eb.textContent = '⚠️ ' + data.errors.join(' | ');
@@ -222,43 +254,62 @@ async function doSearch() {
 
     renderVisible();
   } catch(err) {
-    document.getElementById('errBar').textContent = '⚠️ ' + err.message;
+    document.getElementById('errBar').textContent = '⚠️ حدث خطأ أثناء الاتصال بالسيرفر: ' + err.message;
     document.getElementById('errBar').style.display = 'block';
     document.getElementById('results').innerHTML = '';
   } finally {
-    btn.disabled = false; btn.textContent = 'بحث';
+    btn.disabled = false; btn.textContent = 'ابحث الآن';
   }
 }
 
+// عرض السيارات المطابقة للمواقع المحددة فقط
 function renderVisible() {
-  const filtered = activeFilter === 'all' ? allResults : allResults.filter(c => c.source === activeFilter);
+  const harajOn = document.getElementById('chk-haraj').checked;
+  const saudiOn = document.getElementById('chk-saudi').checked;
+  const expatOn = document.getElementById('chk-expat').checked;
+
+  const filtered = allResults.filter(c => {
+    if(c.source === 'haraj' && !harajOn) return false;
+    if(c.source === 'saudisale' && !saudiOn) return false;
+    if(c.source === 'expatriates' && !expatOn) return false;
+    return true;
+  });
+
   const div = document.getElementById('results');
 
   if (!filtered.length) {
-    div.innerHTML = '<div class="empty">🔍 ما لقيت نتائج، جرب كلمة بحث ثانية</div>';
+    div.innerHTML = '<div class="empty">🔍 لم نجد أي سيارة مطابقة، جرب تغيير كلمة البحث أو تحديد مواقع أكثر.</div>';
     return;
   }
 
-  div.innerHTML = '<div class="cars">' + filtered.map(c => `
-    <div class="car">
+  // رسم الكروت بتأثير حركة (Delay) متدرج لكل كرت
+  div.innerHTML = '<div class="cars">' + filtered.map((c, index) => {
+    
+    // تحديد لون الـ Badge واسم الموقع
+    let badgeClass = 'b-haraj';
+    if(c.source === 'saudisale') badgeClass = 'b-saudi';
+    if(c.source === 'expatriates') badgeClass = 'b-expat';
+
+    return `
+    <div class="car" style="animation-delay: ${index * 0.05}s">
       <div class="car-img">
         ${c.img ? `<img src="${esc(c.img)}" alt="${esc(c.title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=no-img>🚗</div>'">` : '<div class="no-img">🚗</div>'}
       </div>
       <div class="car-body">
-        <div class="car-top">
-          <div class="car-title">${esc(c.title)}</div>
-          <div class="car-price">${esc(c.price)}</div>
-        </div>
+        <div class="car-title">${esc(c.title)}</div>
+        <div class="car-price">${esc(c.price)}</div>
+        
         <div class="car-meta">
-          <span class="badge ${c.source==='haraj'?'b-haraj':'b-saudi'}">${esc(c.sourceName)}</span>
+          <span class="badge ${badgeClass}">${esc(c.sourceName)}</span>
           ${c.city ? `<span class="badge b-city">📍 ${esc(c.city)}</span>` : ''}
           ${c.km   ? `<span class="badge b-km">🛣 ${esc(c.km)}</span>` : ''}
           ${c.time ? `<span class="badge b-time">🕐 ${esc(c.time)}</span>` : ''}
         </div>
-        ${c.url ? `<a class="car-link" href="${esc(c.url)}" target="_blank">عرض الإعلان ←</a>` : ''}
+        
+        ${c.url ? `<a class="car-link" href="${esc(c.url)}" target="_blank">التفاصيل و التواصل</a>` : ''}
       </div>
     </div>
-  `).join('') + '</div>';
+  `}).join('') + '</div>';
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}

@@ -1,67 +1,12 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>محرك بحث السيارات المميز</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #f4f6f8; --surface: #ffffff; --surface2: #f0f2f5;
-  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.12);
-  --text: #111827; --text2: #4b5563; --text3: #9ca3af;
-  --blue: #2563eb; --blue-bg: #dbeafe; --blue-mid: #3b82f6;
-  --green: #16a34a; --green-bg: #dcfce7;
-  --amber: #f59e0b; --amber-bg: #fef3c7;
-  --red: #dc2626; --red-bg: #fee2e2;
-  --r: 12px; --rl: 16px;
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
-    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-    --text: #f8fafc; --text2: #cbd5e1; --text3: #94a3b8;
-    --blue: #60a5fa; --blue-bg: #1e3a8a; --blue-mid: #3b82f6;
-    --green: #4ade80; --green-bg: #14532d;
-    --amber: #fbbf24; --amber-bg: #78350f;
-  }
-}
-body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; line-height: 1.5; }
-.wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 5rem; }
-
-.hdr { text-align: center; margin-bottom: 2.5rem; }
-.hdr h1 { font-size: 30px; font-weight: 800; }
-.version-badge { font-size: 14px; font-weight: 700; background: var(--blue-bg); color: var(--blue); padding: 4px 12px; border-radius: 20px; vertical-align: middle; margin-right: 8px; border: 1px solid var(--blue-mid); }
-.hdr p  { font-size: 15px; color: var(--text3); margin-top: 8px; font-weight: 500; }
-
-.sources { display:flex; justify-content:center; gap:12px; margin-bottom:1.5rem; flex-wrap:wrap; }
-.src-pill { display:flex; align-items:center; gap:8px; padding:8px 18px; border: 1.5px solid var(--border2); border-radius: 30px; font-size: 14px; font-weight: 600; color: var(--text2); background: var(--surface); cursor: pointer; transition: 0.2s; user-select: none; }
-.src-pill input { display: none; }
-.src-pill:hover { border-color: var(--blue-mid); transform: translateY(-2px); }
-.src-pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
-
-.search-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rl); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
-.search-row  { display:flex; gap:12px; }
-.search-row input { flex:1; padding:14px 20px; font-family:'Cairo',sans-serif; font-size:16px; border: 1.5px solid var(--border2); border-radius: var(--r); background: var(--surface2); color: var(--text); outline:none; }
-.search-row input:focus { border-color: var(--blue-mid); }
-.search-row button { padding: 0 32px; background: var(--blue); color: #fff; border:none; border-radius: var(--r); font-family:'Cairo',sans-serif; font-size:16px; font-weight: 700; cursor: pointer; transition: 0.15s; }
-.search-row button:hover { opacity: 0.9; transform: scale(1.02); }
-.search-row button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.quick-label { font-size:13px; color:var(--text3); margin:16px 0 10px; font-weight: 600; }
-.qf-row { display:flex; flex-wrap:wrap; gap:8px; }
-.qf { padding:6px 16px; border: 1px solid var(--border2); border-radius: 20px; background: var(--surface); color: var(--text2); font-family: 'Cairo',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-.qf:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
-
-.stats { display:flex; gap:10px; margin-bottom: 1rem; flex-wrap:wrap; align-items: center; justify-content: center; }
-.stat-chip { padding:6px 16px; border-radius: 20px; font-size:13px; font-weight:700; box-shadow: var(--shadow); }
-.stat-total { background: var(--blue-bg); color: var(--blue); }
-.stat-haraj { background: var(--green-bg); color: var(--green); }
-.stat-opensooq { background: var(--amber-bg); color: var(--amber); }
-.stat-yallamotor { background: var(--blue-bg); color: var(--blue); }
-
-.err { background: var(--red-bg); border: 1px solid var(--red); color: var(--red); padding: 12px
+    <meta charset="UTF-8">
+    <title>اختبار v1.4</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; padding: 50px;">
+    <h1 style="color: blue;">v1.4 - إذا ظهر هذا الكلام فالصفحة تعمل</h1>
+    <input type="text" id="test" placeholder="جرب الكتابة هنا">
+    <button onclick="alert('يعمل بنجاح!')">اختبار</button>
+</body>
 </html>
